@@ -24,7 +24,8 @@
     "optimist": "^0.6.1",
     "passport": ">=0.1.17",
     "passport-local": ">=0.1.6",
-    "rethinkdb": ">=1.12.0-0"
+    "rethinkdb": ">=1.12.0-0",
+    "share": "^0.7.3"
   },
   "devDependencies": {}
 }
