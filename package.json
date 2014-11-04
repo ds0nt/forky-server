@@ -19,12 +19,12 @@
     "express": "^4.9.0",
     "express-session": ">=1.8.1",
     "express-session.io": "invercity/express-session.io",
+    "livedb": "^0.4.8",
+    "nodejs-gravatar": "^1.0.2",
+    "optimist": "^0.6.1",
     "passport": ">=0.1.17",
     "passport-local": ">=0.1.6",
-    "rethinkdb": ">=1.12.0-0",
-    "nodejs-gravatar": "^1.0.2",
-    "livedb": "^0.4.8"
+    "rethinkdb": ">=1.12.0-0"
   },
-  "devDependencies": {
-  }
+  "devDependencies": {}
 }
