@@ -11,13 +11,26 @@ var debug = require('debug')('http')
 	, maps = require('./lib/maps')
 	, bodyParser = require('body-parser');
 
+ var myArgs = require('optimist').argv,
+     help = 'This would be a great place for real help information.';
+
+var port = 3000;
+
+if ((myArgs.h)||(myArgs.help)) {
+   console.log("MetaMap Server\n\t--port\t\t Which port number to listen on");
+   process.exit(0);
+}
+
+if (myArgs.port) {
+	port = myArgs.port;
+}
 
 
 var sharejs = require('share');
 
 var app = express()
-var server = app.listen(3000, function(){
-	console.log('listening on *:3000');
+var server = app.listen(port, function(){
+	console.log('listening on *:' + port);
 });
 
 
