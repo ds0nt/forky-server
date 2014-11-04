@@ -82,10 +82,6 @@ var auth = function(req, res, next){
 		next();
 };
 
-app.get('/', function(req, res){
-	res.sendFile('index.html', {root: landing_dir});
-});
-
 app.get('/app', function(req, res) {
  	if (req.isAuthenticated())
 		res.sendfile('index.html', {root: client_dir});
@@ -102,9 +98,7 @@ app.put('/maps/:id', maps.update);
 
 
 
-app.use("/client", express.static(client_dir));
-app.use("/landing", express.static(landing_dir));
-
+app.use("/", express.static(client_dir));
 
 app.post('/login', passport.authenticate('local'), function(req, res) {
     res.send(req.user);
