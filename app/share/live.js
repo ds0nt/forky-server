@@ -16,7 +16,45 @@ var sharejs = require('share');
 var live = {
 	init: function(server) {
 		this.backend = livedb.client(livedb.memory());
-		this.share = sharejs.server.createClient({backend: this.backend});
+
+
+		this.share = sharejs.server.createClient({
+			backend: this.backend,
+
+			//Per Op Validation
+			validate: function(agent, action) {
+				console.log('==== VALIDATE ===');
+				console.log('agent', agent);
+				console.log('action', action);
+			},
+		});
+
+		//Per Connect Authentication
+		this.share.use('connect', function(req, callback) {
+			console.log('==== CONNECT ===');
+			console.log(req.action);
+			if (true)
+				callback();
+		});
+
+		//Per Op Request (can be multiple ops)
+		this.share.use('submit', function(req, callback) {
+			console.log('==== SUBMIT ===');
+			console.log('MiddleWare Submit: req.collection', req);
+			callback();
+		});
+		this.share.use('after submit', function(req, callback) {
+			console.log('==== AFTER SUBMIT ===');
+			callback();
+		});
+
+		this.share.use('query', function(req, callback) {
+			console.log('==== QUERY ===');
+			callback();
+		});
+
+
+
 		// this.sessionSockets = new SessionSockets(io, sessionStore, cookieParser);
 
 		var WebSocketServer, wss;
@@ -28,14 +66,12 @@ var live = {
 		});
 
 		wss.on('connection', function(client) {
-		  console.log('Connection');
 		  var stream;
 		  stream = new Duplex({
 		    objectMode: true
 		  });
 
 		  stream._write = function(chunk, encoding, callback) {
-		    console.log('s->c ', chunk);
 		    client.send(JSON.stringify(chunk));
 		    return callback();
 		  };
@@ -46,7 +82,6 @@ var live = {
 		  stream.remoteAddress = client.upgradeReq.connection.remoteAddress;
 
 		  client.on('message', function(data) {
-		    console.log('c->s ', data);
 		    return stream.push(JSON.parse(data));
 		  });
 
@@ -57,7 +92,6 @@ var live = {
 		  client.on('close', function(reason) {
 		    stream.push(null);
 		    stream.emit('close');
-		    console.log('client went away');
 		    return client.close(reason);
 		  });
 
@@ -67,36 +101,6 @@ var live = {
 
 		  return live.share.listen(stream);
 		});
-
-		// this.share.use('submit', function(sr, next) {
-
-
-
-		// 	var op = sr.opData.op;
-		// 	if (typeof op !== 'undefined') {
-		// 		for (var i = 0; i < op.length; i++) {
-
-		// 			var path = op[i].p;
-		// 			console.log('path', path);
-		// 			if (path[0] == 'nodes' && typeof op[i].li === 'object') {
-		// 				textPath = [path[0], path[1], 'text'];
-		// 				sr.agent.submit(sr.collection, sr.docName, {
-		// 					a: 'op',
-		// 					op: [{
-		// 						"p": textPath,
-		// 						"od": op[i].li.text,
-		// 						"oi":'WAZAAHHH'
-		// 					}]
-		// 				}, {}, function(err, v, ops) {
-		// 					console.log('err, v, ops', err, v, ops);
-		// 				});
-		// 			}
-		// 		};
-		// 	}
-
-		// 	next();
-		// });
-
 	}
 };
 
