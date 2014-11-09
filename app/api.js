@@ -108,7 +108,7 @@ exports.graph = {
 	    var graph = new Graph(req.body);
 	    graph.creator = req.user.id;
 	    graph.collaborators = [req.user.id];
-	    graph.shared = true;
+	    graph.shared = 'public';
 	    graph.save().then(function(result) {
 	        res.json({
 	            graph: result
