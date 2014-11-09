@@ -25,10 +25,16 @@ module.exports = function(app) {
 
 	app.post('/user', api.user.create);
 
+	app.get('/user', auth, api.user.get);
+
 	app.get('/graphs', auth, api.graph.get);
-	app.get('/graphs/:id', api.graph.get);
+	app.get('/graphs/:id', auth, api.graph.get);
+	app.get('/graphs/join/:id', auth, api.graph.join);
+
+	//figuring out map joining mechanizmzzz
+
 	app.post('/graphs', auth, api.graph.create);
-	app.delete('/graphs/:id', api.graph.delete);
+	app.delete('/graphs/:id', auth, api.graph.delete);
 
 };
 

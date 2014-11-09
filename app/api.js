@@ -3,7 +3,8 @@ var config = require('config'),
 	r = thinky.r,
 	Query = thinky.Query,
 	bcrypt = require('bcrypt'),
-	validator = require('validator');
+	validator = require('validator'),
+	gravatar = require('nodejs-gravatar');
 
 
 var User = thinky.createModel('User', {
@@ -11,11 +12,15 @@ var User = thinky.createModel('User', {
     email: {_type: String, validator: validator.isEmail, enforce_missing: true},
     password: {_type: String, enforce_missing: true},
     date: {_type: Date, default: r.now()}
+}, {
+	enforce_extra: 'remove'
 });
 
 var Graph = thinky.createModel('Graph', {
     id: String,
-    userId: String,
+    creator: String,
+    shared: String,
+    collaborators: [String],
     title: {
     	_type: String,
 		enforce_missing: true
@@ -24,14 +29,19 @@ var Graph = thinky.createModel('Graph', {
 });
 
 // A Graph has one User that we will keep in the field `user`.
-Graph.belongsTo(User, 'user', 'userId', 'id');
-User.hasMany(Graph, 'graph', 'id', 'userId');
+Graph.belongsTo(User, 'user', 'creator', 'id');
+User.hasMany(Graph, 'graph', 'id', 'creator');
 
 // Make sure that an index on date is available
 
 Graph.ensureIndex('date');
-Graph.ensureIndex('userId');
+Graph.ensureIndex('creator');
+Graph.ensureIndex('collaborators', function(doc) { return doc("collaborators") }, {multi: true});
 User.ensureIndex('email');
+
+User.defineStatic("getView", function() {
+    return this.without('password');
+});
 
 var handleDbError = function(err) {
 	console.log(err);
@@ -59,9 +69,10 @@ exports.user = {
 	},
 
 	get: function(req, res) {
-    	User.filter({'email': req.email}).run().then(function(user) {
+    	User.get(req.user.id).getView().run().then(function(user) {
+    		user.picsrc = gravatar.imageUrl(user.email);
 	        res.json({
-	            posts: posts
+	            user: user
 	        });
 	    }).error(handleDbError);
 	},
@@ -86,7 +97,7 @@ exports.user = {
 
 exports.graph = {
 	get: function (req, res) {
-    	Graph.orderBy({index: r.desc('date')}).filter({userId: req.user.id}).getJoin({user: true}).run().then(function(graphs) {
+    	Graph.getAll(req.user.id, {index: 'collaborators'}).run().then(function(graphs) {
 	        res.json({
 	            graphs: graphs
 	        });
@@ -95,7 +106,9 @@ exports.graph = {
 
 	create: function(req, res) {
 	    var graph = new Graph(req.body);
-	    graph.userId = req.user.id;
+	    graph.creator = req.user.id;
+	    graph.collaborators = [req.user.id];
+	    graph.shared = true;
 	    graph.save().then(function(result) {
 	        res.json({
 	            graph: result
@@ -107,6 +120,14 @@ exports.graph = {
 	    		error: error
 	    	});
 	    });
+	},
+
+	join: function(req, res) {
+		Graph.get(req.body.id).run().then(function(graph) {
+			graph.merge({collaborators: [req.user.id]}).save().then(function(result) {
+				res(result);
+			})
+		});
 	},
 
 	delete: function(res, req) {
