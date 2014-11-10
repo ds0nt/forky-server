@@ -23,16 +23,24 @@ var live = {
 
 			//Per Op Validation
 			validate: function(agent, action) {
-				console.log('==== VALIDATE ===');
-				console.log('agent', agent);
-				console.log('action', action);
+				// console.log('==== VALIDATE ===');
+				// console.log('agent', agent);
+				// console.log('action', action);
 			},
 		});
 
 		//Per Connect Authentication
 		this.share.use('connect', function(req, callback) {
 			console.log('==== CONNECT ===');
-			console.log(req.action);
+			// console.log(req.action);
+			if (true)
+				callback();
+		});
+
+		//Per Connect Authentication
+		this.share.use('subscribe', function(req, callback) {
+			console.log('==== SUBSCRIBE ===');
+			// console.log(req.action);
 			if (true)
 				callback();
 		});
@@ -40,7 +48,7 @@ var live = {
 		//Per Op Request (can be multiple ops)
 		this.share.use('submit', function(req, callback) {
 			console.log('==== SUBMIT ===');
-			console.log('MiddleWare Submit: req.collection', req);
+			// console.log('MiddleWare Submit: req.collection', req);
 			callback();
 		});
 		this.share.use('after submit', function(req, callback) {
