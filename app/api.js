@@ -120,8 +120,13 @@ exports.graph = {
 	},
 
 	join: function(req, res) {
-		Graph.get(req.body.id).run().then(function(graph) {
-			graph.merge({collaborators: [req.user.id]}).save().then(function(result) {
+		Graph.get(req.params.id).run().then(function(graph) {
+			console.log('graph', graph);
+			var data = {
+				collaborators: graph.collaborators
+			};
+			data.collaborators.push(req.user.id);
+			graph.merge(data).save().then(function(result) {
 				res(result);
 			})
 		});

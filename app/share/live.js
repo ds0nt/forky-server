@@ -1,5 +1,6 @@
 var Duplex = require('stream').Duplex;
 
+var gravatar = require('nodejs-gravatar');
 // var livedbMongo = require('livedb-mongo');
 // var db = livedbMongo('mongodb://localhost:27017/test?auto_reconnect', {safe:true});
 // backend = livedb.client(db);
@@ -55,7 +56,7 @@ function MetaServer(server, getSession) {
 		backend: backend,
 
 		preValidate: function(opData, action) {
-			console.log('==== PREVALIDATE ===');
+			// console.log('==== PREVALIDATE ===');
 		},
 		//Per Op Validation
 		validate: function(opData, action) {
@@ -70,10 +71,13 @@ function MetaServer(server, getSession) {
 	});
 
 	wss.on('connection', function(ws) {
+		//Get Handshake Request and Extract SessionID
 		var req = ws.upgradeReq;
 		getSession(req, function(err, sess) {
 			if (err)
 				return;
+
+			//Link Session to Stream
 			var stream = wsToStream(ws);
 			stream.sess = sess;
 			share.listen(stream);
@@ -82,59 +86,60 @@ function MetaServer(server, getSession) {
 
 	//Per Connect Authentication
 	share.use('connect', function(req, callback) {
-		console.log('==== CONNECT ===');
+		// console.log('==== CONNECT ===');
 		console.log('req', req);
 		req.agent.data = req.stream.sess;
-		console.log('req.agent.data', req.agent.data);
+		req.agent.user = req.stream.sess.passport.user;
+		req.agent.user.picsrc = gravatar.imageUrl(req.agent.user.email);
+		delete req.agent.user.password;
 		delete req.stream.sess;
 		if (req.agent.data.passport.user)
 			callback();
 		else
-			console.log('INVALID WS');
+			console.log('Connection Denied');
 	});
 
 	share.use('subscribe', function(req, callback) {
+		// console.log('==== SUBSCRIBE ===');
+
 		if (req.collection == 'mapchat') {
-			req.agent.submit(
-				req.collection,
-				req.docName,
-				{op: [{p:['users', 0], li:'abcdefg'}]},
-				{}, function(err, v, ops) {
+			req.agent.submit(req.collection, req.docName, {op: [{p:['users', req.agent.user.id], oi:{status: 'online', user: req.agent.user}}]}, {}, function(err, v, ops) {
+				console.log(err, v, ops);
+			});
+			req.agent.stream.on('end', function() {
+				req.agent.submit(req.collection, req.docName, {op: [{p:['users', req.agent.user.id], od:{}}]}, {}, function(err, v, ops) {
 					console.log(err, v, ops);
 				});
+			});
 		}
-		console.log('==== SUBSCRIBE ===');
 		// console.log(req);
 		if (true)
 			callback();
 	});
 
 	share.use('unsubscribe', function(req, callback) {
+		console.log('==== UNSUBSCRIBE ===');
+
 		if (req.collection == 'mapchat') {
-			req.agent.submit(
-				req.collection,
-				req.docName,
-				{op: [{p:['users', 0], ld:'abcdefg'}]},
-				{}, function(err, v, ops) {
-					console.log(err, v, ops);
-				});
+
 		}
+		callback();
 	});
 
 	//Per Op Request (can be multiple ops)
 	share.use('submit', function(req, callback) {
-		console.log('==== SUBMIT ===');
+		// console.log('==== SUBMIT ===');
 
 		// console.log('MiddleWare Submit: req.collection', req);
 		callback();
 	});
 	share.use('after submit', function(req, callback) {
-		console.log('==== AFTER SUBMIT ===');
+		// console.log('==== AFTER SUBMIT ===');
 		callback();
 	});
 
 	share.use('query', function(req, callback) {
-		console.log('==== QUERY ===');
+		// console.log('==== QUERY ===');
 		callback();
 	});
 };
