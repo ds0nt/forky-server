@@ -29,5 +29,8 @@
     "thinky": "^1.15.0",
     "validator": "^3.22.1"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "cookie": "^0.1.2",
+    "cookie-signature": "^1.0.5"
+  }
 }

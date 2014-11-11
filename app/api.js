@@ -80,9 +80,6 @@ exports.user = {
 	authenticate: function(email, password, done) {
 
 		return User.filter({email: email}).run().then(function(user) {
-			console.log('user', user);
-			console.log('email', email);
-			console.log('password', password);
 			if (user.length === 0) {
 				return done('bad email');
 			}
