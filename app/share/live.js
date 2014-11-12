@@ -87,16 +87,25 @@ function MetaServer(server, getSession) {
 	//Per Connect Authentication
 	share.use('connect', function(req, callback) {
 		// console.log('==== CONNECT ===');
-		console.log('req', req);
-		req.agent.data = req.stream.sess;
-		req.agent.user = req.stream.sess.passport.user;
-		req.agent.user.picsrc = gravatar.imageUrl(req.agent.user.email);
-		delete req.agent.user.password;
+		var httpSession = req.stream.sess;
+
+		if (typeof httpSession.passport.user === 'undefined') {
+			req.agent.auth = false;
+		} else {
+			req.agent.auth = true;
+			req.agent.user = req.stream.sess.passport.user;
+			req.agent.user.picsrc = gravatar.imageUrl(req.agent.user.email);
+			delete req.agent.user.password;
+		}
+
 		delete req.stream.sess;
-		if (req.agent.data.passport.user)
+
+		if (req.agent.auth) {
 			callback();
-		else
+		} else {
 			console.log('Connection Denied');
+			console.log('req.agent.auth', req.agent.auth);
+		}
 	});
 
 	share.use('subscribe', function(req, callback) {

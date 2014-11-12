@@ -25,7 +25,13 @@ var Graph = thinky.createModel('Graph', {
     	_type: String,
 		enforce_missing: true
 	},
-    date: {_type: Date, default: r.now()}
+    date: {_type: Date, default: r.now()},
+    shareURL: {
+        _type: "virtual",
+        default: function() {
+            return "/graphs/join/"+this.id;
+        }
+   }
 });
 
 // A Graph has one User that we will keep in the field `user`.
@@ -108,7 +114,7 @@ exports.graph = {
 	    graph.shared = 'public';
 	    graph.save().then(function(result) {
 	        res.json({
-	            graph: result
+	            graph: graph
 	        });
 	    }).error(function(error) {
 	    	console.log('Graph Create error');
@@ -120,13 +126,14 @@ exports.graph = {
 	},
 
 	join: function(req, res) {
+		console.log('req', req.params);
 		Graph.get(req.params.id).run().then(function(graph) {
 			console.log('graph', graph);
 			var data = {
 				collaborators: graph.collaborators
 			};
 			data.collaborators.push(req.user.id);
-			graph.merge(data).save().then(function(result) {
+			graph.merge(data).save().then(function(err, result) {
 				res(result);
 			})
 		});
