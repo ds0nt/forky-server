@@ -21,6 +21,7 @@
     "express-session": ">=1.8.1",
     "express-session.io": "invercity/express-session.io",
     "livedb": "^0.4.8",
+    "livedb-mongo": "^0.4.1",
     "nodejs-gravatar": "^1.0.2",
     "passport": ">=0.1.17",
     "passport-local": ">=0.1.6",
