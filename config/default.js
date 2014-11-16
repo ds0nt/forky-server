@@ -19,5 +19,10 @@ module.exports = {
 
   share: {
     // 'validDocs': ['map', 'mapchat']
+  },
+
+  cookie: {
+    name: 'SECRETZZZ',
+    secret: 'connect.sid',
   }
 }

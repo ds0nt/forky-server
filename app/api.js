@@ -16,33 +16,6 @@ var User = thinky.createModel('User', {
 	enforce_extra: 'remove'
 });
 
-var Graph = thinky.createModel('Graph', {
-    id: String,
-    creator: String,
-    shared: String,
-    collaborators: [String],
-    title: {
-    	_type: String,
-		enforce_missing: true
-	},
-    date: {_type: Date, default: r.now()},
-    shareURL: {
-        _type: "virtual",
-        default: function() {
-            return "/graphs/join/"+this.id;
-        }
-   }
-});
-
-// A Graph has one User that we will keep in the field `user`.
-Graph.belongsTo(User, 'user', 'creator', 'id');
-User.hasMany(Graph, 'graph', 'id', 'creator');
-
-// Make sure that an index on date is available
-
-Graph.ensureIndex('date');
-Graph.ensureIndex('creator');
-Graph.ensureIndex('collaborators', function(doc) { return doc("collaborators") }, {multi: true});
 User.ensureIndex('email');
 
 User.defineStatic("getView", function() {
@@ -53,6 +26,7 @@ var handleDbError = function(err) {
 	console.log(err);
 };
 
+exports.User = User;
 
 exports.user = {
 	create: function(req, res) {
@@ -95,64 +69,5 @@ exports.user = {
 
 			return done(null, user[0]);
 		}).error(done);
-	}
-};
-
-exports.graph = {
-	get: function (req, res) {
-    	Graph.getAll(req.user.id, {index: 'collaborators'}).run().then(function(graphs) {
-	        res.json({
-	            graphs: graphs
-	        });
-	    }).error(handleDbError);
-	},
-
-	create: function(req, res) {
-	    var graph = new Graph(req.body);
-	    graph.creator = req.user.id;
-	    graph.collaborators = [req.user.id];
-	    graph.shared = 'public';
-	    graph.save().then(function(result) {
-	        res.json({
-	            graph: graph
-	        });
-	    }).error(function(error) {
-	    	console.log('Graph Create error');
-	    	console.log(error);
-	    	res.json({
-	    		error: error
-	    	});
-	    });
-	},
-
-	join: function(req, res) {
-		console.log('req', req.params);
-		Graph.get(req.params.id).run().then(function(graph) {
-			console.log('graph', graph);
-			var data = {
-				collaborators: graph.collaborators
-			};
-			data.collaborators.push(req.user.id);
-			graph.merge(data).save().then(function(err, result) {
-				res(result);
-			})
-		});
-	},
-
-	delete: function(res, req) {
-	    var id = req.params.id;
-
-	    // We can directly delete the Graph since there is no foreign key to clean
-	    Graph.get(id).delete().run().then(function(result) {
-	        res.json({
-	            result: result
-	        });
-	    }).error(function(error) {
-	    	console.log('Graph Delete error');
-	    	console.log(error);
-	    	res.json({
-	    		error: error
-	    	});
-	    });
 	}
 };

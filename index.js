@@ -1,17 +1,20 @@
-var express = require('express')
-	, config = require('config')
-	, middlewares = require('./app/middleware')
 
+//initialize app
+require('./app/app.js');
 
+var plugins = require('./app/plugins');
+plugins.load();
 
-var app = express();
-
-
-var server = app.listen(config.get('server.port'), function(){
-	console.log('listening on *:' + config.get('server.port'));
+plugins.initShare(function(err) {
+	console.log('plugin share initialized');
 });
 
-middlewares(app, server);
+require('./app/middleware.js');
 
-var routes = require('./app/routes')(app);
+require('./app/routes.js');
 
+
+
+plugins.initApi(function() {
+	console.log('plugin api initialized');
+});
