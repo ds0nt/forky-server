@@ -1,33 +1,23 @@
 var config = require('config'),
 	thinky = require('thinky')(config.rethinkdb),
-	r = thinky.r,
-	validator = require('validator'),
-	gravatar = require('nodejs-gravatar'),
+    r = thinky.r,
+    validator = require('validator'),
+    gravatar = require('nodejs-gravatar'),
+    tokenAuth = require('../../middleware').tokenAuth,
     User = require('../../api.js').User,
     ms = require('../../meta-server.js'),
     app = require('../../app.js');
-
-var auth = function(req, res, next){
-	if (!req.isAuthenticated())
-		res.send(401);
-	else
-		next();
-};
 
 var handleDbError = function(err) {
     console.log(err);
 };
 
-app.instance.get('/graphs', auth, _get);
-app.instance.get('/graphs/:id', auth, _get);
-app.instance.post('/graphs', auth, _create);
-app.instance.delete('/graphs/:id', auth, _delete);
-app.instance.get('/graphs/join/:id', auth, _join);
+app.instance.post('/graph', tokenAuth, _create);
+app.instance.post('/graphlist', tokenAuth, _get);
+app.instance.get('/graph/:id', tokenAuth, _get);
+app.instance.get('/graph/join/:id', tokenAuth, _join);
 
-console.log('plugins.graph api initialized');
-
-
-
+// app.instance.delete('/graph/:id', tokenAuth, _delete);
 
 var Graph = thinky.createModel('Graph', {
     id: String,
@@ -67,32 +57,50 @@ function _get(req, res) {
 };
 
 function _create(req, res) {
-    var graph = new Graph(req.body);
-    graph.creator = req.user.id;
-    graph.collaborators = [req.user.id];
-    graph.shared = 'public';
-    graph.save().then(function(result) {
+    var graph = new Graph({
+        title: req.body.title,
+        creator: req.user.id,
+        collaborators: [req.user.id],
+        shared: 'public',
+    });
 
-        ms.agent.submit('graph', result.id, {create: {
-            type: 'json0',
-            data: {
-                nodes: {
-                    root: {text: 'Mind Map'}
-                },
-                edges: []
+    function createShareGraph(id, cb) {
+        ms.agent.submit('graph', id, {
+            create: {
+                type: 'json0',
+                data: {
+                    nodes: {
+                        root: {text: 'Mind Map'}
+                    },
+                    edges: []
+                }
             }
-        }}, function (err, shareresult) {
-            if (err) {
-                console.log(err);
-                return null;
-            }
-            ms.agent.submit('chat', result.id, {create: {
+        }, cb);
+    }
+
+    function createShareChat(id, cb) {
+        ms.agent.submit('chat', id, {
+            create: {
                 type: 'json0',
                 data: {
                     chats:[],
                     users:{}
                 }
-            }}, function (err, shareresult) {
+            }
+        }, cb);
+    }
+
+    graph.save().then(function(graph) {
+        createShareGraph(graph.id, function (err, shareresult) {
+            if (err) {
+                console.log('create share graph', err);
+                return null;
+            }
+            createShareChat(graph.id, function (err, shareresult) {
+                if (err) {
+                    console.log('create share chat', err);
+                    return null;
+                }
                 res.json({
                     graph: graph
                 });
@@ -109,15 +117,13 @@ function _create(req, res) {
 };
 
 function _join(req, res) {
-	console.log('req', req.params);
 	Graph.get(req.params.id).run().then(function(graph) {
-		console.log('graph', graph);
 		var data = {
 			collaborators: graph.collaborators
 		};
 		data.collaborators.push(req.user.id);
 		graph.merge(data).save().then(function(err, result) {
-			res(result);
+			res.json(result);
 		})
 	});
 };
@@ -138,3 +144,7 @@ function _delete(res, req) {
     	});
     });
 };
+
+module.exports = function() {
+    //Init Logic
+}

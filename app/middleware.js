@@ -1,31 +1,34 @@
 
 var config = require('config'),
-  expressSession = require('express-session'),
-	sessionStore = new expressSession.MemoryStore(),
-	cookieParser = require('cookie-parser')(),
 	bodyParser = require('body-parser'),
 	passport = require('passport'),
-	LocalStrategy = require('passport-local').Strategy,
+  LocalStrategy = require('passport-local').Strategy,
+	BearerStrategy = require('passport-http-bearer').Strategy,
 	api = require('./api.js'),
   app = require('./app.js');
 
 
-app.instance.use(cookieParser);
-
-var session = expressSession({
-  store: sessionStore,
-  name: config.cookie.name,
-  secret: config.cookie.secret
-});
-
-app.instance.use(session);
-
 app.instance.use(bodyParser.json());
 app.instance.use(passport.initialize());
-app.instance.use(passport.session());
+// app.instance.use(passport.session());
 
 
 passport.use(bodyParser.json());
+
+passport.use(new BearerStrategy(
+  function(token, done) {
+
+    api.User.filter({token: token}).run().then(function(user) {
+      if (user.length == 1) {
+        return done(null, user[0]);
+      }
+      return done('token not found');
+    }).error(function(err) {
+      done(err);
+    });
+  }
+));
+
 passport.use(new LocalStrategy({
     	usernameField: 'email',
 	},
@@ -48,15 +51,6 @@ passport.use(new LocalStrategy({
   }
 ));
 
-passport.serializeUser(function(user, done) {
-  done(null, user);
-});
-
-passport.deserializeUser(function (user, done) {
-  // db.findUserById(id, done);
-  done(null, user);
-});
-
-module.exports = {
-  sessionStore: sessionStore
+exports.tokenAuth = function(req, res, next) {
+  passport.authenticate('bearer', { session: false })(req, res, next);
 };

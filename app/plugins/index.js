@@ -42,8 +42,10 @@ var _ready = function(cb) {
 exports.initApi = function (complete) {
 	_ready(function() {
 		for (var i = 0; i < extensions.length; i++) {
-			if (typeof extensions[i].api === 'function')
+			if (typeof extensions[i].api === 'function') {
 				extensions[i].api();
+				console.log('Plugin "' + extensions[i].name + '": API Initialized');
+			}
 		};
 		complete(null, null);
 		emitter.emit('api ready');
@@ -56,9 +58,7 @@ exports.initShare = function(complete) {
 			return function actionUses(collection, middleware) {
 				if (typeof collection === 'function') {
 					middleware = collection;
-					return share.use(action, function(res, cb) {
-						return middleware(res, cb);
-					});
+					return share.use(action, middleware);
 				}
 				share.use(action, function(res, cb) {
 					if (res.collection == collection) {
@@ -72,6 +72,7 @@ exports.initShare = function(complete) {
 			//arguments: req, cb
 			connect: shareFactory('connect'),
 			subscribe: shareFactory('subscribe'),
+			bulksubscribe: shareFactory('bulk subscribe'),
 			unsubscribe: shareFactory('unsubscribe'),
 			submit: shareFactory('submit'),
 			aftersubmit: shareFactory('after submit'),
@@ -81,6 +82,7 @@ exports.initShare = function(complete) {
 		for (var i = 0; i < extensions.length; i++) {
 			if (typeof extensions[i].share === 'function')
 				extensions[i].share(interface);
+				console.log('Plugin "' + extensions[i].name + '": Share Initialized');
 		};
 
 		complete(null, null);

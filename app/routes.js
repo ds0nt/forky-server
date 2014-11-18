@@ -4,36 +4,23 @@ var express = require('express'),
 	config = require('config'),
 	app = require('./app');
 
-function ensureAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) return next();
-  res.redirect('/login');
-}
-
-var auth = function(req, res, next){
-	if (!req.isAuthenticated())
-		res.send(401);
-	else
-		next();
-};
 
 var client_dir = config.get('client.appPath');
 var landing_dir = config.get('client.landingPath');
 
-app.instance.use('/', express.static(landing_dir));
-app.instance.use('/app', express.static(client_dir));
+app.instance.use('/public', express.static(client_dir));
 
-app.instance.post('/login', passport.authenticate('local'), function(req, res) {
-    res.send(req.user);
+app.instance.post('/login',
+	passport.authenticate('local', { session: false }), function(req, res) {
+    res.json(req.user);
 });
 
-app.instance.post('/logout', function(req, res) {
-	if (req.isAuthenticated())
-		req.logout();
-	res.send(200);
-});
 
 app.instance.post('/user', api.user.create);
 
-app.instance.get('/user', auth, api.user.get);
-
-
+app.instance.get('/app/*', function(req, res) {
+    res.sendFile(client_dir + '/index.html');
+});
+app.instance.get('/', function(req, res) {
+    res.sendFile(client_dir + '/index.html');
+});

@@ -1,6 +1,8 @@
 var WebSocketServer = require('ws').Server;
 var Duplex = require('stream').Duplex;
 var _ = require('underscore');
+var api = require('../api.js');
+
 
 function wsToStream(ws) {
   var stream;
@@ -44,41 +46,28 @@ function wsToStream(ws) {
 
 module.exports = function(options, cb) {
 	this.options = {
-		server: null,
-		session: false,
-		getSession: function() {
-			console.log('Warning: getSession(req, cb) is not defined')
-		},
+		server: null
 	};
 
 	_.extend(this.options, options);
 	this.options = _.extend(options, this.options);
-	console.log('ws options', this.options);
 	this.wss = new WebSocketServer({
 	  server: options.server
 	});
 
+	this.wss.on('connection', function(ws) {
 
-	if (options.session) {
-		this.wss.on('connection', function(ws) {
-			//Get WebSocket Handshake Request and Extract SessionID
-			options.getSession(ws.upgradeReq, function(err, sess) {
-				if (err) {
-					console.log('ws-stream getSession error: ', err);
-					return;
-				}
+		//parse token from url
+		var token = ws.upgradeReq.url.substring(1);
 
-				//Link Session to Stream
-				var stream = wsToStream(ws);
-				stream.sess = sess;
-				cb(stream);
+		api.user.getByToken(token, function(err, user) {
+			if (err)
+				return cb(err, null);
 
-			});
-		});
-	} else {
-		this.wss.on('connection', function(ws) {
 			var stream = wsToStream(ws);
-			cb(stream);
+			stream.user = user;
+
+			cb(null, stream);
 		});
-	}
+	});
 }

@@ -25,9 +25,12 @@ var agent = share.createAgent();
 //attach sharejs to websocket stream
 this.wsStream = new wsStream({
 	server: app.server,
-	session: true,
-	getSession: util.getSession,
-}, function onStream(stream) {
+}, function onStream(err, stream) {
+	if (err) {
+		console.log(err)
+		return;
+	}
+
 	share.listen(stream);
 });
 

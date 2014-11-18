@@ -1,11 +1,10 @@
 var api = require('./api.js');
-var ms = require('../../meta-server.js');
-
-var plugin = {
-	api: api
-};
+var share = require('./share.js');
 
 module.exports = function(data, host, options) {
-
-	return plugin;
+	return {
+		name: 'Graph',
+		api: api,
+		share: share
+	};
 };
