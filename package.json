@@ -27,7 +27,7 @@
     "passport-http-bearer": "^1.0.1",
     "passport-local": ">=0.1.6",
     "rethinkdb": ">=1.12.0-0",
-    "share": "^0.7.3",
+    "share": "metagen/ShareJS",
     "thinky": "^1.15.0",
     "validator": "^3.22.1"
   },

@@ -73,7 +73,7 @@ exports.initShare = function(complete) {
 			connect: shareFactory('connect'),
 			subscribe: shareFactory('subscribe'),
 			bulksubscribe: shareFactory('bulk subscribe'),
-			unsubscribe: shareFactory('unsubscribe'),
+			unsubscribe: shareFactory('unsub'),
 			submit: shareFactory('submit'),
 			aftersubmit: shareFactory('after submit'),
 			query: shareFactory('query'),
