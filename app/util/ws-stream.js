@@ -58,16 +58,21 @@ module.exports = function(options, cb) {
 	this.wss.on('connection', function(ws) {
 
 		//parse token from url
-		var token = ws.upgradeReq.url.substring(1);
+		var token = ws.upgradeReq.url.split('/').pop();
+		var stream = wsToStream(ws);
 
-		api.user.getByToken(token, function(err, user) {
-			if (err)
-				return cb(err, null);
+		if (token) {
+			api.user.getByToken(token, function(err, user) {
+				if (err)
+					return cb(err, null);
 
-			var stream = wsToStream(ws);
-			stream.user = user;
+				stream.user = user;
 
+				cb(null, stream);
+			});
+		} else {
 			cb(null, stream);
-		});
+		}
+
 	});
 }

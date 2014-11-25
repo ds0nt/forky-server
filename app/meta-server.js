@@ -16,11 +16,10 @@ var sjsOptions = {
 	backend: livedb.client(db)
 };
 
-//reverse wrap
 
 var share = sharejs.server.createClient(sjsOptions);
 var agent = share.createAgent();
-
+agent.auth = true;
 
 //attach sharejs to websocket stream
 this.wsStream = new wsStream({

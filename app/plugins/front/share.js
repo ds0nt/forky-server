@@ -6,15 +6,19 @@ module.exports = function(shareApi) {
 	// useful for authentication
 	shareApi.connect(function(req, callback) {
 
-		req.agent.user = req.stream.user;
+		req.agent.user = typeof req.stream.user !== 'undefined' ? req.stream.user : false;
 		delete req.stream.user;
 
+		console.log(req.agent.user);
+
 		if (req.agent.user) {
-			console.log('Connection Approved');
-			callback();
+			req.agent.auth = true;
+			console.log('Connection As ' + req.agent.user.email);
 		} else {
-			console.log('Connection Denied');
-			callback();
+			req.agent.auth = false;
+			console.log('Connection As Guest');
 		}
+
+		callback();
 	});
 };

@@ -64,11 +64,15 @@ function _create(req, res) {
         shared: 'public',
     });
 
+    var collaborators = {};
+    collaborators[graph.creator] = {};
+
     function createShareGraph(id, cb) {
         ms.agent.submit('graph', id, {
             create: {
                 type: 'json0',
                 data: {
+                	collaborators: collaborators,
                     nodes: {
                         root: {text: 'Mind Map'}
                     },
