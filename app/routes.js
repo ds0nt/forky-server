@@ -2,6 +2,7 @@ var express = require('express'),
 	api = require('./api'),
 	passport = require('passport'),
 	config = require('config'),
+    tokenAuth = require('./middleware').tokenAuth,
 	app = require('./app');
 
 
@@ -17,6 +18,7 @@ app.instance.post('/login',
 
 
 app.instance.post('/user', api.user.create);
+app.instance.post('/user/setHelpSeen', tokenAuth, api.user.setHelpSeen);
 
 app.instance.get('/app/*', function(req, res) {
     res.sendFile(client_dir + '/index.html');

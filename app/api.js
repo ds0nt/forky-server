@@ -15,7 +15,8 @@ var User = thinky.createModel('User', {
     picsrc: {_type: String, default: function() {
     	return gravatar.imageUrl(this.email)
 	}},
-    date: {_type: Date, default: r.now()}
+    date: {_type: Date, default: r.now()},
+    first_login: Boolean
 }, {
 	enforce_extra: 'remove'
 });
@@ -74,7 +75,7 @@ exports.user = {
 	    var user = new User(req.body);
 
 	    user.password = bcrypt.hashSync(user.password, 8);
-
+	    user.first_login = true;
 	    r.branch(
 	    	r.table('User').getAll(user.email, {index: 'email'}).isEmpty(),
 	    	r.table('User').insert(user), {}
@@ -87,6 +88,18 @@ exports.user = {
 	    		res.json(result);
 	    	}
        }).error(handleDbError);
+	},
+
+	setHelpSeen: function(req, res) {
+		console.log(req.user.id);
+		User.get(req.user.id).run().then(function(user) {
+
+			user.first_login = false;
+
+			user.save().then(function(result) {
+				res.json(result);
+			}).error(handleDbError);
+		});
 	},
 
 	get: function(req, res) {
