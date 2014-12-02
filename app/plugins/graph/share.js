@@ -2,6 +2,12 @@ var ms = require('../../meta-server.js');
 var _ = require('underscore');
 var opify = require('../../util/op-builder.js');
 
+
+var chattypes = {
+	message: 1,
+	join: 2,
+}
+
 // op that adds participant to a chat
 opify.opifier('join chat', function() {
 	return {
@@ -10,6 +16,17 @@ opify.opifier('join chat', function() {
 		oi: {
 			user: this.agent.user,
 			status: 'online'
+		}
+	};
+});
+
+opify.opifier('join chat message', function(user) {
+	return {
+		p: ['chats',9999 /* , last index ? */],
+		li: {
+			t: chattypes.join,
+			timestamp: new Date(),
+			user: user,
 		}
 	};
 });
@@ -23,7 +40,7 @@ chatSubscribe = function(req) {
 	}
 
 	//Add Participant
-	req.agent.submit(req.collection, req.docName, opify(req.agent).op('join chat').opify(), {}, function(err, v, ops) {
+	req.agent.submit(req.collection, req.docName, opify(req.agent).op('join chat').op('join chat message', req.agent.user.id).opify(), {}, function(err, v, ops) {
 
 		if (err) {
 			console.log(err);
@@ -37,9 +54,7 @@ chatSubscribe = function(req) {
 		req.agent.chats[req.docName] = '';
 	});
 
-	// submitChat(req.docName, req.agent.user, 'Opened the Graph');
-
-	// Remove on Stream End
+	// Destruction Event - Chat Disconnect
 	req.agent.stream.on('end', function() {
 
 		for (var chat in req.agent.chats) {
@@ -47,33 +62,6 @@ chatSubscribe = function(req) {
 				console.log(err, v, ops);
 			});
 		}
-	});
-}
-
-var chatOp = function(type, text, email, picsrc) {
-
-	var chat = {
-		t: type,
-		text: text,
-		timestamp: new Date(),
-		email: email,
-		picsrc: picsrc
-	}
-
-	//Need to figure out how to push element to an array
-	var path = ['chats'];
-
-	return {op: [{
-			p:path,
-			li: chat
-		}]
-	};
-}
-
-var submitChat = function(doc, user, text) {
-
-	ms.agent.submit('chat', doc, chatOp(2, text, user.email, user.picsrc), {}, function(err, v, ops) {
-		console.log(err, v, ops);
 	});
 }
 

@@ -33,7 +33,7 @@ User.ensureIndex('email');
 User.ensureIndex('token');
 
 User.defineStatic("getView", function() {
-    return this.without('password');
+    return this.without('password').without('token');
 });
 
 Token.defineStatic("loginToken", function(id, cb) {
@@ -111,7 +111,7 @@ exports.user = {
 	},
 
 	getByToken: function(token, done) {
-		return User.filter({token: token}).run().then(function(user) {
+		return User.filter({token: token}).getView().run().then(function(user) {
 			if (user.length === 0) {
 				return done('bad token');
 			}
@@ -141,7 +141,7 @@ exports.user = {
     			user.token = token.id;
     			user.save();
 
-				delete user.password;
+				delete user.token;
 
 				return done(null, {user: user, token: token});
     		});
