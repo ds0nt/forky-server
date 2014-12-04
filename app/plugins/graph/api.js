@@ -28,7 +28,7 @@ var Graph = thinky.createModel('Graph', {
     	_type: String,
 		enforce_missing: true
 	},
-    date: {_type: Date, default: r.now()},
+    // date: {_type: Date, default: r.now()},
     shareURL: {
         _type: "virtual",
         default: function() {

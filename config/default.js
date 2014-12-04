@@ -6,8 +6,7 @@ module.exports = {
   },
 
   client: {
-    appPath: '/home/dsont-pc/Projects/mind-map/client/build',
-    landingPath: '/home/dsont-pc/Projects/mind-map/landing'
+    appPath: '/home/dsont/metamind/metamind/build'
   },
 
   rethinkdb: {
@@ -16,13 +15,4 @@ module.exports = {
     authKey: "",
     db: 'MetaMind'
   },
-
-  share: {
-    // 'validDocs': ['map', 'mapchat']
-  },
-
-  cookie: {
-    name: 'SECRETZZZ',
-    secret: 'connect.sid',
-  }
 }

@@ -7,7 +7,6 @@ var express = require('express'),
 
 
 var client_dir = config.get('client.appPath');
-var landing_dir = config.get('client.landingPath');
 
 app.instance.use('/public', express.static(client_dir));
 

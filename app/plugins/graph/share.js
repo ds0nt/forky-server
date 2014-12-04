@@ -40,7 +40,8 @@ chatSubscribe = function(req) {
 	}
 
 	//Add Participant
-	req.agent.submit(req.collection, req.docName, opify(req.agent).op('join chat').op('join chat message', req.agent.user.id).opify(), {}, function(err, v, ops) {
+	// req.agent.submit(req.collection, req.docName, opify(req.agent).op('join chat').op('join chat message', req.agent.user.id).opify(), {}, function(err, v, ops) {
+	req.agent.submit(req.collection, req.docName, opify(req.agent).op('join chat').opify(), {}, function(err, v, ops) {
 
 		if (err) {
 			console.log(err);
@@ -95,7 +96,7 @@ module.exports = function(shareApi) {
 	shareApi.submit('chat', function(req, callback) {
 		if (!req.agent.auth) {
 			console.log('illegal chat');
-			callback('ERRORNESS');
+			// callback('ERRORNESS');
 			return;
 		}
 
