@@ -12,22 +12,23 @@ function OpBuilder(agent) {
 			if (typeof ops === 'array') {
 				for (var i = 0; i < ops.length; i++) {
 					this.ops.push(ops);
-				};
-				return this;
+				};				
+			} else {
+				this.ops.push(ops);				
 			}
-
-			this.ops.push(ops);
-			return this;
 		},
 
 		// OpBuilder().op('type', args)
 		op: function(func) {
 			ops = optory[func].apply(this, Array.prototype.slice.call(arguments, 1));
-			return this._op(ops);
+			this._op(ops);
+			return this;
 		},
 
-		opify: function() {
-			return { op: this.ops };
+		done: function() {
+			return { 
+				op: this.ops 
+			};
 		},
 	};
 }

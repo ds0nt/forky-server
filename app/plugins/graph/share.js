@@ -10,11 +10,16 @@ var chattypes = {
 
 // op that adds participant to a chat
 opify.opifier('join chat', function() {
+	console.log(this.agent.user);
 	return {
 		//path, object for insert
 		p: ['users', this.agent.user.id],
 		oi: {
-			user: this.agent.user,
+			user: {
+				id: this.agent.user.id,
+				email: this.agent.user.email,
+				picsrc: this.agent.user.picsrc,
+			},
 			status: 'online'
 		}
 	};
@@ -34,18 +39,22 @@ opify.opifier('join chat message', function(user) {
 //todo, make this logic readable
 
 chatSubscribe = function(req) {
-
 	if (!req.agent.user) {
 		return;
 	}
+	console.log('subscribe to chat');
+
+	// return;
 
 	//Add Participant
 	// req.agent.submit(req.collection, req.docName, opify(req.agent).op('join chat').op('join chat message', req.agent.user.id).opify(), {}, function(err, v, ops) {
-	req.agent.submit(req.collection, req.docName, opify(req.agent).op('join chat').opify(), {}, function(err, v, ops) {
+	console.log('subscribing',  req.collection, req.docName, req.agent);
 
+	req.agent.submit(req.collection, req.docName, opify(req.agent).op('join chat').done(), {}, function(err, v, ops) {
+		console.log('subscribing',  req.collection, req.docName);
 		if (err) {
-			console.log(err);
-			return
+			console.log(new Error(err));
+			return new Error(err);
 		}
 
 		if (!_.isObject(req.agent.chats)) {
@@ -53,16 +62,16 @@ chatSubscribe = function(req) {
 		}
 
 		req.agent.chats[req.docName] = '';
-	});
 
-	// Destruction Event - Chat Disconnect
-	req.agent.stream.on('end', function() {
-
-		for (var chat in req.agent.chats) {
-			req.agent.submit('chat', chat, {op: [{p:['users', req.agent.user.id], od:{}}]}, {}, function(err, v, ops) {
-				console.log(err, v, ops);
-			});
-		}
+		// Destruction Event - Chat Disconnect
+		req.agent.stream.on('end', function() {
+			console.log('stream end');
+			for (var chat in req.agent.chats) {
+				req.agent.submit('chat', chat, {op: [{p:['users', req.agent.user.id], od:{}}]}, {}, function(err, v, ops) {
+					console.log(err, v, ops);
+				});
+			}
+		});
 	});
 }
 
@@ -76,10 +85,14 @@ module.exports = function(shareApi) {
 			if (col == 'chat') {
 				for (var doc in req.requests[col]) {
 					req.docName = doc;
-					chatSubscribe(req);
+					process.nextTick(function() {						
+						chatSubscribe(req);
+					});
 				}
 			}
 		}
+
+		console.log('bulk subscribed');
 		callback();
 	})
 
@@ -96,7 +109,7 @@ module.exports = function(shareApi) {
 	shareApi.submit('chat', function(req, callback) {
 		if (!req.agent.auth) {
 			console.log('illegal chat');
-			// callback('ERRORNESS');
+			callback('ERRORNESS');
 			return;
 		}
 
@@ -122,15 +135,15 @@ module.exports = function(shareApi) {
 		console.log('=== UNSUB ===');
 
 		if (req.agent.user) {
-			req.agent.submit(req.collection, req.docName, {op: [{p:['users', req.agent.user.id], od:{}}]}, {}, function(err, v, ops) {
-				if (err) {
-					console.log(err);
-					return;
-				}
+			// req.agent.submit(req.collection, req.docName, {op: [{p:['users', req.agent.user.id], od:{}}]}, {}, function(err, v, ops) {
+			// 	if (err) {
+			// 		console.log(err);
+			// 		return;
+			// 	}
 
-				//Delete Stream End Chat Event Handler
-				delete req.agent.chats[req.docName];
-			});
+			// 	//Delete Stream End Chat Event Handler
+			// 	delete req.agent.chats[req.docName];
+			// });
 		}
 
 		callback();

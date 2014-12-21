@@ -56,6 +56,32 @@ function _get(req, res) {
     }).error(handleDbError);
 };
 
+function createShareGraph(id, cb) {
+        ms.agent.submit('graph', id, {
+            create: {
+                type: 'json0',
+                data: {
+                    nodes: {
+                        root: {text: 'Mind Map'}
+                    },
+                    edges: []
+                }
+            }
+        }, cb);
+    }
+
+function createShareChat(id, cb) {
+    ms.agent.submit('chat', id, {
+        create: {
+            type: 'json0',
+            data: {
+                chats:[],
+                users:{}
+            }
+        }
+    }, cb);
+}
+
 function _create(req, res) {
     var graph = new Graph({
         title: req.body.title,
@@ -67,43 +93,18 @@ function _create(req, res) {
     var collaborators = {};
     collaborators[graph.creator] = {};
 
-    function createShareGraph(id, cb) {
-        ms.agent.submit('graph', id, {
-            create: {
-                type: 'json0',
-                data: {
-                	collaborators: collaborators,
-                    nodes: {
-                        root: {text: 'Mind Map'}
-                    },
-                    edges: []
-                }
-            }
-        }, cb);
-    }
-
-    function createShareChat(id, cb) {
-        ms.agent.submit('chat', id, {
-            create: {
-                type: 'json0',
-                data: {
-                    chats:[],
-                    users:{}
-                }
-            }
-        }, cb);
-    }
+    
 
     graph.save().then(function(graph) {
         createShareGraph(graph.id, function (err, shareresult) {
             if (err) {
                 console.log('create share graph', err);
-                return null;
+                return;
             }
             createShareChat(graph.id, function (err, shareresult) {
                 if (err) {
                     console.log('create share chat', err);
-                    return null;
+                    return;
                 }
                 res.json({
                     graph: graph
@@ -114,8 +115,9 @@ function _create(req, res) {
     }).error(function(error) {
     	console.log('Graph Create error');
     	console.log(error);
+
     	res.json({
-    		error: error
+    		error: 'There was an error creating the graph'
     	});
     });
 };

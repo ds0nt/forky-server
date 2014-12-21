@@ -5,8 +5,7 @@ var api = require('../api.js');
 
 
 function wsToStream(ws) {
-  var stream;
-  stream = new Duplex({
+  var stream = new Duplex({
     objectMode: true
   });
 
@@ -63,8 +62,10 @@ module.exports = function(options, cb) {
 
 		if (token) {
 			api.user.getByToken(token, function(err, user) {
-				if (err)
-					return cb(err, null);
+				if (err) {
+          console.log('Error getting user by token', err)
+					return cb(new Error(err), null);
+        }
 
 				stream.user = user;
 
