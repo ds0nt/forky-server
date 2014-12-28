@@ -3,5 +3,6 @@
 
 # but not these files
 !.gitignore
-!.default.js
+!default.js
+!custom-environment-variables.js
 
