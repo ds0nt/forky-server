@@ -12,12 +12,12 @@ var handleDbError = function(err) {
     console.log(err);
 };
 
-app.instance.post('/graph', tokenAuth, _create);
-app.instance.post('/graphlist', tokenAuth, _get);
-app.instance.get('/graph/:id', tokenAuth, _get);
-app.instance.get('/graph/join/:id', tokenAuth, _join);
+app.instance.post('/api/graph', tokenAuth, _create);
+app.instance.post('/api/graphlist', tokenAuth, _get);
+app.instance.get('/api/graph/:id', tokenAuth, _get);
+app.instance.get('/api/graph/join/:id', tokenAuth, _join);
 
-// app.instance.delete('/graph/:id', tokenAuth, _delete);
+// app.instance.delete('/api/graph/:id', tokenAuth, _delete);
 
 var Graph = thinky.createModel('Graph', {
     id: String,
@@ -32,7 +32,7 @@ var Graph = thinky.createModel('Graph', {
     shareURL: {
         _type: "virtual",
         default: function() {
-            return "/graphs/join/"+this.id;
+            return "/api/graph/join/"+this.id;
         }
    }
 });

@@ -57,7 +57,7 @@ module.exports = function(options, cb) {
 	this.wss.on('connection', function(ws) {
 
 		//parse token from url
-		var token = ws.upgradeReq.url.split('/').pop();
+		var token = ws.upgradeReq.url.split('/ws/').pop();
 		var stream = wsToStream(ws);
 
 		if (token) {
