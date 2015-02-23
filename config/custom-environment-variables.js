@@ -2,20 +2,22 @@
 
 module.exports = {
 
+  assets: 'FORKY_CLIENT',
+
   server: {
-    port: 'MM_PORT',
+    port: 'FORKY_PORT',
   },
 
   rethinkdb: {
-    host: 'MM_RETHINK_HOST',
-    port: 'MM_RETHINK_PORT',
-    db: 'MM_RETHINK_DB',
-    authKey: 'MM_RETHINK_AUTH_KEY',
+    host: 'FORKY_RETHINK_HOST',
+    port: 'FORKY_RETHINK_PORT',
+    db: 'FORKY_RETHINK_DB',
+    authKey: 'FORKY_RETHINK_AUTH_KEY',
   },
 
   livedb: {
-    backend: 'MM_LIVEDB_BACKEND',
-    mongo: 'MM_LIVEDB_MONGO_CONNECTION',
+    backend: 'FORKY_LIVEDB_BACKEND',
+    mongo: 'FORKY_LIVEDB_MONGO_CONNECTION',
   },
 
 };
