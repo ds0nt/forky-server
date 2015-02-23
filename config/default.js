@@ -6,10 +6,6 @@ module.exports = {
     port: 3000,
   },
 
-  client: {
-    appPath: '/path/to/metamind/build',
-  },
-
   rethinkdb: {
     host: 'localhost',
     port: 28015,
