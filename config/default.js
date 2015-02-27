@@ -2,22 +2,22 @@ console.log('Loading Default Config');
 
 module.exports = {
 
-  assets: '/var/www',
+	assets: '../client/dist',
 
-  server: {
-    port: 8080,
-  },
+	server: {
+		port: 8080,
+	},
 
-  rethinkdb: {
-    host: 'localhost',
-    port: 28015,
-    db: 'forky',
-    authKey: "",
-  },
+	rethinkdb: {
+		host: 'localhost',
+		port: 28015,
+		db: 'forky',
+		authKey: "",
+	},
 
-  livedb: {
-    backend: 'mongo',
-    mongo: 'mongodb://localhost:27017/forky?auto_reconnect',
-  },
+	livedb: {
+		backend: 'mongo',
+		mongo: 'mongodb://localhost:27017/forky?auto_reconnect',
+	},
 
 };

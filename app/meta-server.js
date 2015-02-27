@@ -10,11 +10,11 @@ var wsStream = require('./util/ws-stream.js');
 var db;
 
 if (config.livedb.backend == 'mongo') {
-	
+
 	db = require('livedb-mongo')(config.livedb.mongo, {
 		safe: true
 	});
-	
+
 } else {
 	console.log('WARNING: livedb is saving to memory');
 
@@ -44,11 +44,8 @@ new wsStream({
 	share.listen(stream);
 });
 
-console.log('hello');
-
 
 module.exports = {
 	share: share,
 	agent: agent,
 };
-

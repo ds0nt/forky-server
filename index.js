@@ -25,6 +25,10 @@ var config = require('config');
 var tokenAuth = require('./app/middleware').tokenAuth;
 var app = require('./app/app');
 
+var fs = require('fs');
+var path = require('path');
+
+
 app.instance.post('/api/login',
 	passport.authenticate('local', { session: false }), function(req, res) {
     res.json(req.user);
@@ -33,16 +37,33 @@ app.instance.post('/api/login',
 app.instance.post('/api/user', api.user.create);
 app.instance.post('/api/user/setHelpSeen', tokenAuth, api.user.setHelpSeen);
 
-var fs = require('fs');
-var path = require('path');
 
-var assets = path.resolve(config.get('assets'));
-var index = path.resolve(assets, 'index.html');
 
-if (fs.existsSync(assets)) {
-	console.log('Serving Web Client: ' + assets);
-	app.instance.use('/', express.static(assets));
+function serveClient(dir) {
+	console.log('Serving Forky Client: %s', assets);
+	if (!dir) {
+		return false;
+	}
+
+	var index = path.resolve(dir, 'index.html');
+	app.instance.use('/', express.static(dir));
 	app.instance.get(/^.*/, function(req, res) {
 		res.sendFile(index);
 	});
+
+	return dir;
+}
+
+
+
+var assets = path.resolve(config.get('assets'));
+
+if (assets) {
+
+	if (!fs.existsSync(assets)) {
+		throw new Error('Bad Asset Path: ' + assets);
+	}
+
+	serveClient(assets);
+
 }
