@@ -4,8 +4,6 @@
 **Forky** is a collaborative visualization tool.  I'm hosting it at [http://forky.io](http://forky.io). It goes up and down as there are only a handful of users.
 
 
-## Getting Started
-
 You can run a Forky Server in the cloud, on your pc, or on 'hackable' hardware, and possibly elsewhere.
 
 #### Prerequisites
