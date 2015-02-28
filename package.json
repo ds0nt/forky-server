@@ -1,32 +1,32 @@
 {
-  "name": "forky-server",
-  "version": "1.0.0",
-  "description": "Forky Server",
-  "author": "Daniel Sont <dan.sont@gmail.com>",
-  "repository": "https://github.com/21cdawn/forky-server",
-  "engines": {
-    "node": "^0.12.0"
-  },
-  "dependencies": {
-    "bcrypt": ">=0.7.7",
-    "bluebird": "^2.3.10",
-    "body-parser": "^1.8.2",
-    "config": "^1.7.0",
-    "connect-flash": ">=0.1.1",
-    "cookie-parser": "^1.3.3",
-    "express": "^4.9.0",
-    "express-session": ">=1.8.1",
-    "js-plugins": "0.0.2",
-    "livedb": "^0.4.8",
-    "livedb-mongo": "^0.4.1",
-    "nodejs-gravatar": "^1.0.2",
-    "passport": ">=0.1.17",
-    "passport-http-bearer": "^1.0.1",
-    "passport-local": ">=0.1.6",
-    "share": "metagen/ShareJS",
-    "thinky": "^1.15.0",
-    "underscore": "^1.7.0",
-    "validator": "^3.22.1",
-    "ws": "^0.5.0"
-  }
+	"name": "forky-server",
+	"version": "1.0.0",
+	"description": "Forky Server",
+	"author": "Daniel Sont <dan.sont@gmail.com>",
+	"repository": "https://github.com/itdawns/forky-server",
+	"engines": {
+		"node": "^0.12.0"
+	},
+	"dependencies": {
+		"bcrypt": ">=0.7.7",
+		"bluebird": "^2.3.10",
+		"body-parser": "^1.8.2",
+		"config": "^1.7.0",
+		"connect-flash": ">=0.1.1",
+		"cookie-parser": "^1.3.3",
+		"express": "^4.9.0",
+		"express-session": ">=1.8.1",
+		"js-plugins": "0.0.2",
+		"livedb": "^0.4.8",
+		"livedb-mongo": "^0.4.1",
+		"nodejs-gravatar": "^1.0.2",
+		"passport": ">=0.1.17",
+		"passport-http-bearer": "^1.0.1",
+		"passport-local": ">=0.1.6",
+		"share": "metagen/ShareJS",
+		"thinky": "^1.15.0",
+		"underscore": "^1.7.0",
+		"validator": "^3.22.1",
+		"ws": "^0.5.0"
+	}
 }
