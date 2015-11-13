@@ -5,11 +5,11 @@ module.exports = {
 	assets: '../client/dist',
 
 	server: {
-		port: 8080,
+		port: 8088,
 	},
 
 	rethinkdb: {
-		host: 'localhost',
+		host: 'rethink',
 		port: 28015,
 		db: 'forky',
 		authKey: "",
@@ -17,7 +17,7 @@ module.exports = {
 
 	livedb: {
 		backend: 'mongo',
-		mongo: 'mongodb://localhost:27017/forky?auto_reconnect',
+		mongo: 'mongodb://mongo:27017/forky?auto_reconnect',
 	},
 
 };

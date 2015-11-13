@@ -73,6 +73,7 @@ exports.Token = Token;
 exports.user = {
 	create: function(req, res, done) {
 	    var user = new User(req.body);
+	    console.log(JSON.stringify({"type": "createUser", "req.user.email": req.user.email }))
 
 	    user.password = bcrypt.hashSync(user.password, 8);
 	    user.first_login = true;
@@ -91,7 +92,7 @@ exports.user = {
 	},
 
 	setHelpSeen: function(req, res) {
-		console.log(req.user.id);
+	    console.log(JSON.stringify({"type": "setHelpSeen", "req.user.id": req.user.id}))
 		User.get(req.user.id).run().then(function(user) {
 
 			user.first_login = false;
@@ -103,7 +104,8 @@ exports.user = {
 	},
 
 	get: function(req, res) {
-    	User.get(req.user.id).getView().run().then(function(user) {
+	    console.log(JSON.stringify({"type": "getuser", "req.user.id": req.user.id}))
+            User.get(req.user.id).getView().run().then(function(user) {
 	        res.json({
 	            user: user
 	        });
@@ -111,6 +113,7 @@ exports.user = {
 	},
 
 	getByToken: function(token, done) {
+		console.log(JSON.stringify({"type": "getByToken"}))
 		return User.filter({token: token}).getView().run().then(function(user) {
 			if (user.length === 0) {
 				return done('bad token');
@@ -121,7 +124,7 @@ exports.user = {
 	},
 
 	authenticate: function(email, password, done) {
-
+		console.log(JSON.stringify({"type": "authenticate", "email": email}))
 		return User.filter({email: email}).run().then(function(user) {
 			if (user.length === 0) {
 				return done('bad email');
